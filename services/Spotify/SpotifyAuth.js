@@ -31,13 +31,16 @@ export default class SpotifyAuth {
       });
       return result.params.code;
     } catch (err) {
-      console.error(err);
+      return null;
     }
   };
 
   static async getTokens() {
     try {
       const authorizationCode = await SpotifyAuth.getAuthorizationCode();
+      if (!authorizationCode) {
+        return null;
+      }
       const credsB64 = btoa(`${spotifyCredentials.clientId}:${spotifyCredentials.clientSecret}`);
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
