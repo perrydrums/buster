@@ -1,8 +1,8 @@
 import {AuthSession} from 'expo';
-import {spotifyCredentials} from '../secret';
+import {spotifyCredentials} from '../../secret';
 import {encode as btoa} from 'base-64';
 import SpotifyWebAPI from 'spotify-web-api-js';
-import Storage from './Storage';
+import Storage from '../Storage';
 
 const scopesArr = ['user-modify-playback-state','user-read-currently-playing','user-read-playback-state','user-library-modify',
   'user-library-read','playlist-read-private','playlist-read-collaborative','playlist-modify-public',
@@ -10,7 +10,7 @@ const scopesArr = ['user-modify-playback-state','user-read-currently-playing','u
 
 const scopes = scopesArr.join(' ');
 
-export default class Spotify {
+export default class SpotifyAuth {
 
   static async isLoggedIn() {
     return !!(await Storage.getUserData('accessToken'));
@@ -37,7 +37,7 @@ export default class Spotify {
 
   static async getTokens() {
     try {
-      const authorizationCode = await Spotify.getAuthorizationCode();
+      const authorizationCode = await SpotifyAuth.getAuthorizationCode();
       const credsB64 = btoa(`${spotifyCredentials.clientId}:${spotifyCredentials.clientSecret}`);
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
@@ -81,7 +81,7 @@ export default class Spotify {
       const responseJson = await response.json();
 
       if (responseJson.error) {
-        await Spotify.getTokens();
+        await SpotifyAuth.getTokens();
       } else {
         const {
           access_token: newAccessToken,
@@ -107,7 +107,7 @@ export default class Spotify {
     const tokenExpirationTime = await Storage.getUserData('expirationTime') || 0;
 
     if (new Date().getTime() > tokenExpirationTime) {
-      await Spotify.refreshTokens();
+      await SpotifyAuth.refreshTokens();
     }
     const accessToken = await Storage.getUserData('accessToken');
     let sp = new SpotifyWebAPI();
@@ -116,7 +116,7 @@ export default class Spotify {
   }
 
   static async login(context) {
-    const sp = await Spotify.getValidSPObj();
+    const sp = await SpotifyAuth.getValidSPObj();
     const { id } = await sp.getMe();
     if (id) {
       context.setState({loggedIn: true});

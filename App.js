@@ -3,7 +3,7 @@ import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
 import Login from './components/Login/Login';
-import Spotify from './services/Spotify';
+import SpotifyAuth from './services/Spotify/SpotifyAuth';
 
 export default class App extends React.Component {
   state = {
@@ -12,7 +12,7 @@ export default class App extends React.Component {
   };
 
   async componentDidMount() {
-    this.setState({ loggedIn: await Spotify.isLoggedIn() });
+    this.setState({ loggedIn: await SpotifyAuth.isLoggedIn() });
   }
 
   render() {

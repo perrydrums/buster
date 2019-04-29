@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, ScrollView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-import Spotify from '../../services/Spotify';
+import SpotifyAuth from '../../services/Spotify/SpotifyAuth';
 
 export default class Login extends React.Component {
 
@@ -16,7 +16,7 @@ export default class Login extends React.Component {
             />
             <TouchableOpacity
               style={styles.button}
-              onPress={() => Spotify.login(this.props.context)}
+              onPress={() => SpotifyAuth.login(this.props.context)}
             >
               <Text style={styles.buttonText}>
                 LOGIN WITH SPOTIFY

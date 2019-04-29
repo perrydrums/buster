@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, ScrollView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-import Spotify from '../services/Spotify';
+import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -12,7 +12,7 @@ export default class HomeScreen extends React.Component {
   };
 
   async componentDidMount() {
-    const sp = await Spotify.getValidSPObj();
+    const sp = await SpotifyAuth.getValidSPObj();
     const { id: username } = await sp.getMe();
     this.setState({ username });
   }
@@ -29,7 +29,7 @@ export default class HomeScreen extends React.Component {
             <Text> {this.state.username} </Text>
             <TouchableOpacity
               style={styles.button}
-              onPress={Spotify.logout}
+              onPress={SpotifyAuth.logout}
             >
               <Text style={styles.buttonText}>
                 LOGOUT
