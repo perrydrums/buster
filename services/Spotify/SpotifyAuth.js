@@ -12,10 +12,20 @@ const scopes = scopesArr.join(' ');
 
 export default class SpotifyAuth {
 
+  /**
+   * Check if an access token is set.
+   *
+   * @returns {Promise<boolean>}
+   */
   static async isLoggedIn() {
     return !!(await Storage.getUserData('accessToken'));
   }
 
+  /**
+   * Get an authorization code from Spotify API.
+   *
+   * @returns {Promise<*>}
+   */
   static async getAuthorizationCode() {
     try {
       const redirectUrl = AuthSession.getRedirectUrl(); //this will be something like https://auth.expo.io/@your-username/your-app-slug
@@ -35,6 +45,11 @@ export default class SpotifyAuth {
     }
   };
 
+  /**
+   * Get Spotify tokens by fetching Spotify API.
+   *
+   * @returns {Promise<null>}
+   */
   static async getTokens() {
     try {
       const authorizationCode = await SpotifyAuth.getAuthorizationCode();
@@ -69,6 +84,11 @@ export default class SpotifyAuth {
     }
   }
 
+  /**
+   * Refresh tokens and save on device.
+   *
+   * @returns {Promise<void>}
+   */
   static async refreshTokens() {
     try {
       const credsB64 = btoa(`${spotifyCredentials.clientId}:${spotifyCredentials.clientSecret}`);
@@ -106,6 +126,11 @@ export default class SpotifyAuth {
     }
   }
 
+  /**
+   * Get the SpotifyWebAPI object.
+   *
+   * @returns {Promise<SpotifyWebApi | SpotifyWebApi.SpotifyWebApiJs>}
+   */
   static async getValidSPObj() {
     const tokenExpirationTime = await Storage.getUserData('expirationTime') || 0;
 
@@ -118,6 +143,13 @@ export default class SpotifyAuth {
     return sp;
   }
 
+  /**
+   * Trigger oAuth login flow. Set loggedIn state.
+   * 
+   * @param context
+   *
+   * @returns {Promise<void>}
+   */
   static async login(context) {
     const sp = await SpotifyAuth.getValidSPObj();
     const { id } = await sp.getMe();
@@ -126,6 +158,12 @@ export default class SpotifyAuth {
     }
   }
 
+  /**
+   * Unset Spotify Auth tokens.
+   * 
+   * TODO: Set state loggedIn to false.
+   * TODO: Redirect user.
+   */
   static logout() {
     Storage.unsetUserData([
       'accessToken',
