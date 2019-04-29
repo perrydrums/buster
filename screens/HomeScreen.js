@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, ScrollView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-import Spotify from '../functions/Spotify';
+import Spotify from '../services/Spotify';
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
