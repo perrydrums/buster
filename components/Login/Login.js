@@ -1,38 +1,25 @@
 import React from 'react';
 import {Image, ScrollView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
-import Spotify from '../functions/Spotify';
+import Spotify from '../../functions/Spotify';
 
-export default class HomeScreen extends React.Component {
-  static navigationOptions = {
-    header: null,
-  };
-
-  state = {
-    username: 'loading...',
-  };
-
-  async componentDidMount() {
-    const sp = await Spotify.getValidSPObj();
-    const { id: username } = await sp.getMe();
-    this.setState({ username });
-  }
+export default class Login extends React.Component {
 
   render() {
+    // AsyncStorage.clear();
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('../assets/images/splash.png')}
+              source={require('../../assets/images/splash.png')}
               style={styles.logo}
             />
-            <Text> {this.state.username} </Text>
             <TouchableOpacity
               style={styles.button}
-              onPress={Spotify.logout}
+              onPress={() => Spotify.login(this.props.context)}
             >
               <Text style={styles.buttonText}>
-                LOGOUT
+                LOGIN WITH SPOTIFY
               </Text>
             </TouchableOpacity>
           </View>
@@ -60,4 +47,14 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: 'contain',
   },
+  button: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingVertical: 15,
+    width: '100%',
+  },
+  buttonText: {
+    color: '#000',
+    textAlign: 'center',
+    fontWeight: '700',
+  }
 });
