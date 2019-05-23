@@ -3,6 +3,8 @@ import {spotifyCredentials} from '../../secret';
 import {encode as btoa} from 'base-64';
 import SpotifyWebAPI from 'spotify-web-api-js';
 import Storage from '../Storage';
+import * as firebase from 'firebase';
+import '@firebase/firestore';
 
 const scopesArr = ['user-modify-playback-state','user-read-currently-playing','user-read-playback-state','user-library-modify',
   'user-library-read','playlist-read-private','playlist-read-collaborative','playlist-modify-public',
@@ -156,6 +158,13 @@ export default class SpotifyAuth {
     if (id) {
       context.setState({loggedIn: true});
     }
+
+    // Save user in Firebase.
+    const dbh = firebase.firestore();
+    dbh.collection('users').doc(id).set({
+      username: id,
+      lastAccess: Math.floor(Date.now() / 1000),
+    })
   }
 
   /**

@@ -4,6 +4,7 @@ import { AppLoading, Asset, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
 import Login from './components/Login/Login';
 import SpotifyAuth from './services/Spotify/SpotifyAuth';
+import * as firebase from 'firebase';
 
 export default class App extends React.Component {
   state = {
@@ -13,6 +14,17 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.setState({ loggedIn: await SpotifyAuth.isLoggedIn() });
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAhOLqpx9cs21BKGjHUIeqrBfYay8FNMPI",
+      authDomain: "buster-music.firebaseapp.com",
+      databaseURL: "https://buster-music.firebaseio.com",
+      projectId: "buster-music",
+      storageBucket: "buster-music.appspot.com",
+      messagingSenderId: "147749625823",
+      appId: "1:147749625823:web:30011ebb726d5037"
+    };
+    firebase.initializeApp(firebaseConfig);
   }
 
   render() {
