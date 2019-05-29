@@ -3,7 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View, AsyncStorage} from 'react-nati
 import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 
-export default class LinksScreen extends React.Component {
+export default class RatingScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
