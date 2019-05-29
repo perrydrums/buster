@@ -2,6 +2,7 @@ import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View, AsyncStorage} from 'react-native';
 import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
+import * as firebase from 'firebase';
 
 export default class RatingScreen extends React.Component {
   static navigationOptions = {
@@ -72,24 +73,24 @@ export default class RatingScreen extends React.Component {
   }
 
   async rate(like) {
-    const value = await AsyncStorage.getItem('@Tracks:rating');
-    console.log('likes', await JSON.parse(value));
-    if (value !== null) {
-      let json = await JSON.parse(value);
-      json.tracks.push({
-        track: this.state.currentTrack,
-        like: like,
-      });
-      AsyncStorage.setItem('@Tracks:rating', await JSON.stringify(json));
-    }
-    else {
-      let json = {tracks: []};
-      json.tracks.push({
-        track: this.state.currentTrack,
-        like: like,
-      });
-      AsyncStorage.setItem('@Tracks:rating', await JSON.stringify(json));
-    }
+    // Save current track in Firebase.
+    const track = this.state.currentTrack;
+    const sp = await SpotifyAuth.getValidSPObj();
+
+    const dbh = firebase.firestore();
+    dbh.collection('tracks').doc(track.id).set({
+      spotify_id: track.id,
+      track: await JSON.stringify(track),
+      audio_features: await sp.getAudioFeaturesForTrack(track.id),
+    });
+
+    // Save rating in Firebase.
+    const { id } = await sp.getMe();
+    dbh.collection('ratings').doc().set({
+      user_id: id,
+      track_id: track.id,
+      like: like,
+    });
 
     this.next();
   }
