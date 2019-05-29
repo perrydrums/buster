@@ -181,4 +181,14 @@ export default class SpotifyAuth {
     ]);
   }
 
+  /**
+   * Returns the current, logged in, Spotify user.
+   *
+   * @returns {Promise<SpotifyApi.CurrentUsersProfileResponse>}
+   */
+  static async getCurrentUser() {
+    const sp = await SpotifyAuth.getValidSPObj();
+    return await sp.getMe()
+  }
+
 }
