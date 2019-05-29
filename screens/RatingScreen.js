@@ -90,6 +90,7 @@ export default class RatingScreen extends React.Component {
       user_id: id,
       track_id: track.id,
       like: like,
+      rated_on: Math.floor(Date.now() / 1000),
     });
 
     this.next();
