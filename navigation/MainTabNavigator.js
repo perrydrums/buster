@@ -6,6 +6,7 @@ import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import RatingScreen from '../screens/RatingScreen';
 import StatsScreen from '../screens/StatsScreen';
+import BuildScreen from '../screens/BuildScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -53,8 +54,23 @@ StatsStack.navigationOptions = {
   ),
 };
 
+const BuildStack = createStackNavigator({
+  Build: BuildScreen,
+});
+
+BuildStack.navigationOptions = {
+  tabBarLabel: 'Build',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
+    />
+  ),
+};
+
 export default createBottomTabNavigator({
   HomeStack,
   RatingStack,
   StatsStack,
+  BuildStack,
 });
