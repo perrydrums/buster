@@ -1,9 +1,10 @@
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet, Button, Modal} from 'react-native';
 import {Font, LinearGradient} from 'expo';
 import * as firebase from 'firebase';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import Spotify from '../services/Spotify/Spotify';
+import Preview from '../components/Playlist/Preview';
 
 export default class BuildScreen extends React.Component {
   static navigationOptions = {
@@ -15,6 +16,8 @@ export default class BuildScreen extends React.Component {
     track_ids: [],
     track_id_chunks: [],
     recommendations: [],
+    tracks: [],
+    show_preview: false,
   };
 
   async componentDidMount() {
@@ -28,8 +31,8 @@ export default class BuildScreen extends React.Component {
     const db = firebase.firestore();
     const user = await SpotifyAuth.getCurrentUser();
 
-    // Clear state track_ids.
-    this.setState({ track_ids: [], track_id_chunks: [] });
+    // Clear state.
+    this.setState({ track_ids: [], track_id_chunks: [], recommendations: [], tracks: [] });
 
     // Get all ratings by the current user.
     const response = await db.collection('ratings')
@@ -55,20 +58,17 @@ export default class BuildScreen extends React.Component {
       const limit = Math.floor(100 / this.state.track_id_chunks.length);
       const recommendations = await Spotify.getRecommendationsByTracks(ids, limit);
       recommendations.tracks.forEach(track => {
-        this.state.recommendations.push(
-          db.collection('tracks').doc(track.id)
-        );
+        this.state.recommendations.push(track.id);
+        this.state.tracks.push(track);
       });
     }
 
-    // Save playlist.
-    db.collection('playlists').doc().set({
-      user_id: db.collection('users').doc(user.id),
-      name: 'Test Playlist',
-      tracks: this.state.recommendations,
-      count: this.state.recommendations.length,
-    });
+    this.setState({ show_preview: true });
   }
+
+  toggleModal = () => {
+    this.setState({ show_preview: !this.state.show_preview });
+  };
 
   render() {
     return (
@@ -93,6 +93,18 @@ export default class BuildScreen extends React.Component {
             }
           </TouchableOpacity>
         </View>
+        <Modal
+          visible={this.state.show_preview}
+          animationType="slide"
+          transparent={false}
+        >
+          <Preview
+            tracks={this.state.tracks}
+            track_ids={this.state.recommendations}
+            close={this.toggleModal}
+          />
+          <Button title="Hide modal" onPress={this.toggleModal} />
+        </Modal>
       </LinearGradient>
     );
   }
