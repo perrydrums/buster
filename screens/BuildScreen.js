@@ -13,6 +13,7 @@ export default class BuildScreen extends React.Component {
   state = {
     fontLoaded: false,
     track_ids: [],
+    track_id_chunks: [],
     recommendations: [],
   };
 
@@ -28,7 +29,7 @@ export default class BuildScreen extends React.Component {
     const user = await SpotifyAuth.getCurrentUser();
 
     // Clear state track_ids.
-    this.setState({ track_ids: [] });
+    this.setState({ track_ids: [], track_id_chunks: [] });
 
     // Get all ratings by the current user.
     const response = await db.collection('ratings')
@@ -41,10 +42,18 @@ export default class BuildScreen extends React.Component {
       this.state.track_ids.push(snap.data().track_id)
     });
 
-    // Get song recommendations per 5 track_ids and save in state.
+    // Split track_ids in groups of 5.
     while (this.state.track_ids.length) {
-      const ids = this.state.track_ids.splice(0, 5);
-      const recommendations = await Spotify.getRecommendationsByTracks(ids);
+      this.state.track_id_chunks.push(
+        this.state.track_ids.splice(0, 5)
+      );
+    }
+
+    // Get song recommendations per 5 track_ids and save in state.
+    for (let i = 0; i < this.state.track_id_chunks.length; i ++) {
+      const ids = this.state.track_id_chunks[i];
+      const limit = Math.floor(100 / this.state.track_id_chunks.length);
+      const recommendations = await Spotify.getRecommendationsByTracks(ids, limit);
       recommendations.tracks.forEach(track => {
         this.state.recommendations.push(
           db.collection('tracks').doc(track.id)
@@ -52,6 +61,7 @@ export default class BuildScreen extends React.Component {
       });
     }
 
+    // Save playlist.
     db.collection('playlists').doc().set({
       user_id: db.collection('users').doc(user.id),
       name: 'Test Playlist',
