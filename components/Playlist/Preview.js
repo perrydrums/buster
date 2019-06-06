@@ -31,12 +31,24 @@ export default class Preview extends React.Component {
     // Save playlist.
     const db = firebase.firestore();
     const user = await SpotifyAuth.getCurrentUser();
+    const sp = await SpotifyAuth.getValidSPObj();
 
     db.collection('playlists').doc().set({
       user_id: db.collection('users').doc(user.id),
       name,
       tracks: this.props.track_ids,
       count: this.props.track_ids.length,
+    });
+
+    sp.createPlaylist(user.id, {
+      name,
+      description: 'Created by Buster.',
+    }).then(res => {
+      let uris = [];
+      this.props.tracks.forEach(track => {
+        uris.push(track.uri);
+      });
+      sp.addTracksToPlaylist(res.id, uris);
     });
 
     this.props.close();
