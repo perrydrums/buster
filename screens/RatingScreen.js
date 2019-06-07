@@ -16,6 +16,7 @@ export default class RatingScreen extends React.Component {
     currentAudio: null,
     currentTrack: null,
     tracks: [],
+    audios: [],
     playingStatus: 'stopped',
     loading: false,
   };
@@ -31,7 +32,7 @@ export default class RatingScreen extends React.Component {
     this.setState({ loading: true });
     this.stop();
 
-    if (this.state.tracks.length < 5) {
+    if (this.state.tracks.length < 2) {
       const sp = await SpotifyAuth.getValidSPObj();
 
       const getRandomSongsArray = ['%a%', 'a%', '%e%', 'e%', '%i%', 'i%', '%o%', 'o%'];
@@ -40,27 +41,27 @@ export default class RatingScreen extends React.Component {
 
       const response = await sp.search(getRandomSongs, ['track'], {
         offset: getRandomOffset,
-        limit: 20,
+        limit: 5,
       });
 
       const tracks = response.tracks.items;
       for (let i = 0; i < tracks.length; i++) {
         if (tracks[i].preview_url) {
           this.state.tracks.push(tracks[i]);
+
+          const { sound } = await Audio.Sound.createAsync(
+            {uri: tracks[i].preview_url},
+          );
+          this.state.audios.push(sound);
         }
       }
     }
 
+    const sound = this.state.audios.splice(0, 1);
     const track = this.state.tracks.splice(0, 1);
 
-    console.log('track', track);
-
-    const { sound } = await Audio.Sound.createAsync(
-      {uri: track[0].preview_url},
-    );
-
     this.setState({
-      currentAudio: sound,
+      currentAudio: sound[0],
       currentTrack: track[0],
       playingStatus: 'playing'
     });
