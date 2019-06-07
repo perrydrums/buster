@@ -5,6 +5,7 @@ import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import * as firebase from 'firebase';
 import Swiper from 'react-native-deck-swiper';
+import Music from '../assets/images/music.svg';
 
 export default class RatingScreen extends React.Component {
   static navigationOptions = {
@@ -134,7 +135,7 @@ export default class RatingScreen extends React.Component {
               renderCard={() => {
                 return (
                   <View style={styles.card}>
-
+                    <Music width={100} height={100} />
                   </View>
                 )
               }}
@@ -182,6 +183,8 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: 'white',
     marginBottom: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loading: {
     position: 'absolute',
