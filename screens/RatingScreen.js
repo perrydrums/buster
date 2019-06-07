@@ -1,5 +1,6 @@
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, AsyncStorage} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { NavigationEvents } from "react-navigation";
 import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import * as firebase from 'firebase';
@@ -21,23 +22,10 @@ export default class RatingScreen extends React.Component {
       'ProximaNova': require('../assets/fonts/ProximaNovaBold.otf'),
     });
     this.setState({ fontLoaded: true });
-
-    this.next();
-  }
-
-  componentWillUnmount() {
-
   }
 
   async next() {
-    if (this.state.playingStatus === 'playing') {
-      this.state.currentAudio.stopAsync();
-      this.setState({
-        currentAudio: null,
-        currentTrack: null,
-        playingStatus: 'stopped'
-      });
-    }
+    this.stop();
 
     const sp = await SpotifyAuth.getValidSPObj();
 
@@ -96,6 +84,17 @@ export default class RatingScreen extends React.Component {
     this.next();
   }
 
+  stop() {
+    if (this.state.playingStatus === 'playing') {
+      this.state.currentAudio.stopAsync();
+      this.setState({
+        currentAudio: null,
+        currentTrack: null,
+        playingStatus: 'stopped'
+      });
+    }
+  }
+
   render() {
     return (
       <LinearGradient
@@ -105,6 +104,10 @@ export default class RatingScreen extends React.Component {
         end={{ x: 1, y: 1 }}
         locations={[0.1, 0.4, 0.9]}
       >
+        <NavigationEvents
+          onDidFocus={this.next.bind(this)}
+          onDidBlur={this.stop.bind(this)}
+        />
         {this.state.currentTrack &&
         <View style={styles.icon}>
           <Text>
