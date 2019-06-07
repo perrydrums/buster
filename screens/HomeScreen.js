@@ -1,6 +1,8 @@
 import React from 'react';
-import {Image, ScrollView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {ScrollView, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
+import Logo from '../assets/images/logo-white.svg';
+import Colors from '../constants/Colors';
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -20,22 +22,21 @@ export default class HomeScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
           <View style={styles.logoContainer}>
-            <Image
-              source={require('../assets/images/splash.png')}
-              style={styles.logo}
+            <Logo
+              viewBox='0 0 350 100'
             />
-            <Text> {this.state.username} </Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={SpotifyAuth.logout}
-            >
-              <Text style={styles.buttonText}>
-                LOGOUT
-              </Text>
-            </TouchableOpacity>
           </View>
+          <Text> {this.state.username} </Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={SpotifyAuth.logout}
+          >
+            <Text style={styles.buttonText}>
+              LOGOUT
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     );
@@ -45,19 +46,14 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    alignItems: 'center',
+    backgroundColor: Colors.tintColor,
   },
   contentContainer: {
     paddingTop: 30,
   },
   logoContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  logo: {
-    width: 200,
-    height: 100,
-    resizeMode: 'contain',
+    marginTop: 50,
+    marginBottom: 50,
   },
 });
