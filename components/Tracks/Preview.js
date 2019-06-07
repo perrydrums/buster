@@ -3,9 +3,11 @@ import {ScrollView, Text, StyleSheet, View, Image, Button, AlertIOS} from 'react
 import {Font} from 'expo';
 import * as firebase from 'firebase';
 import SpotifyAuth from '../../services/Spotify/SpotifyAuth';
+import Track from './Track';
+import PropTypes from 'prop-types';
+import Colors from '../../constants/Colors';
 
-export default class Preview extends React.Component {
-
+class Preview extends React.Component {
   state = {
     fontLoaded: false,
   };
@@ -57,11 +59,7 @@ export default class Preview extends React.Component {
   tracks() {
     return this.props.tracks.map((track, i) => {
       return (
-        <View key={i} style={styles.track}>
-          <Image source={{uri: track.album.images[0].url}}
-                 style={styles.trackImage} />
-          <Text style={styles.trackTitle}>{track.name}</Text>
-        </View>
+        <Track track={track} key={i} />
       );
     });
   }
@@ -69,7 +67,6 @@ export default class Preview extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.playlist}>
           {
             this.state.fontLoaded ? (
               <Text style={styles.title}>
@@ -77,13 +74,23 @@ export default class Preview extends React.Component {
               </Text>
             ) : null
           }
-          {this.tracks()}
-        </ScrollView>
-        <Button
-          style={styles.saveButton}
-          title="Save Playlist"
-          onPress={this.chooseName.bind(this)}
-        />
+          <ScrollView style={styles.tracks}>
+            {this.tracks()}
+          </ScrollView>
+        <View style={styles.buttons}>
+          <Button
+            style={styles.button}
+            title="Save Playlist"
+            color='#ffffff'
+            onPress={this.chooseName.bind(this)}
+          />
+          <Button
+            style={styles.button}
+            title="Cancel"
+            color='#ffffff'
+            onPress={this.props.close}
+          />
+        </View>
       </View>
     );
   }
@@ -93,41 +100,35 @@ export default class Preview extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'red',
-  },
-  playlist: {
-    flex: 1,
-    height: 500,
-    paddingTop: 100,
-    paddingLeft: 40,
-    paddingRight: 40,
+    padding: 30,
+    backgroundColor: Colors.tintColor,
   },
   title: {
     fontFamily: 'ProximaNova',
     fontSize: 28,
     color: 'white',
-    marginBottom: 100,
+    marginBottom: 50,
+    marginTop: 50,
   },
-  track: {
-    width: '100%',
-    height: 100,
+  buttons: {
     display: 'flex',
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: 70,
   },
-  trackTitle: {
-    width: '60%',
-    fontFamily: 'ProximaNova',
+  button: {
+    width: '50%',
+    height: 70,
     color: 'white',
-    display: 'flex',
-    height: 50,
-    marginLeft: 20,
-  },
-  trackImage: {
-    width: 50,
-    height: 50,
-    display: 'flex',
-  },
-  saveButton: {
-    height: 50,
+    backgroundColor: 'white',
+    textAlign: 'center',
   },
 });
+
+Preview.propTypes = {
+  tracks: PropTypes.array.isRequired,
+  track_ids: PropTypes.array.isRequired,
+  close: PropTypes.func.isRequired,
+};
+
+export default Preview;

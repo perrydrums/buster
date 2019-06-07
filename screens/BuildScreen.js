@@ -4,7 +4,7 @@ import {Font, LinearGradient} from 'expo';
 import * as firebase from 'firebase';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import Spotify from '../services/Spotify/Spotify';
-import Preview from '../components/Playlist/Preview';
+import Preview from '../components/Tracks/Preview';
 
 export default class BuildScreen extends React.Component {
   static navigationOptions = {
@@ -112,7 +112,6 @@ export default class BuildScreen extends React.Component {
             track_ids={this.state.recommendations}
             close={this.toggleModal}
           />
-          <Button title="Hide modal" onPress={this.toggleModal} />
         </Modal>
       </LinearGradient>
     );

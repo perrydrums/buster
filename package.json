@@ -21,7 +21,8 @@
     "react-native-linear-gradient": "^2.5.4",
     "react-native-modal": "^11.0.1",
     "react-navigation": "^3.0.9",
-    "spotify-web-api-js": "^1.2.0"
+    "spotify-web-api-js": "^1.2.0",
+    "prop-types": "latest"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0",
