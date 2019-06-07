@@ -1,9 +1,10 @@
 import React from 'react';
-import {ActivityIndicator, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import { NavigationEvents } from "react-navigation";
 import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import * as firebase from 'firebase';
+import Swiper from 'react-native-deck-swiper';
 
 export default class RatingScreen extends React.Component {
   static navigationOptions = {
@@ -14,6 +15,7 @@ export default class RatingScreen extends React.Component {
     fontLoaded: false,
     currentAudio: null,
     currentTrack: null,
+    tracks: [],
     playingStatus: 'stopped',
     loading: false,
   };
@@ -29,33 +31,37 @@ export default class RatingScreen extends React.Component {
     this.setState({ loading: true });
     this.stop();
 
-    const sp = await SpotifyAuth.getValidSPObj();
+    if (this.state.tracks.length < 5) {
+      const sp = await SpotifyAuth.getValidSPObj();
 
-    const getRandomSongsArray = ['%a%', 'a%', '%e%', 'e%', '%i%', 'i%', '%o%', 'o%'];
-    const getRandomSongs = getRandomSongsArray[Math.floor(Math.random() * getRandomSongsArray.length)];
-    const getRandomOffset = Math.floor(Math.random() * 1000);
+      const getRandomSongsArray = ['%a%', 'a%', '%e%', 'e%', '%i%', 'i%', '%o%', 'o%'];
+      const getRandomSongs = getRandomSongsArray[Math.floor(Math.random() * getRandomSongsArray.length)];
+      const getRandomOffset = Math.floor(Math.random() * 1000);
 
-    const rec = await sp.search(getRandomSongs, ['track'], {
-      offset: getRandomOffset,
-      limit: 10,
-    });
+      const response = await sp.search(getRandomSongs, ['track'], {
+        offset: getRandomOffset,
+        limit: 20,
+      });
 
-    let track = null;
-    const tracks = rec.tracks.items;
-    for (let i = 0; i < tracks.length; i++) {
-      if (tracks[i].preview_url) {
-        track = tracks[i];
-        break;
+      const tracks = response.tracks.items;
+      for (let i = 0; i < tracks.length; i++) {
+        if (tracks[i].preview_url) {
+          this.state.tracks.push(tracks[i]);
+        }
       }
     }
 
+    const track = this.state.tracks.splice(0, 1);
+
+    console.log('track', track);
+
     const { sound } = await Audio.Sound.createAsync(
-      {uri: track.preview_url},
+      {uri: track[0].preview_url},
     );
 
     this.setState({
       currentAudio: sound,
-      currentTrack: track,
+      currentTrack: track[0],
       playingStatus: 'playing'
     });
 
@@ -108,47 +114,36 @@ export default class RatingScreen extends React.Component {
         end={{ x: 1, y: 1 }}
         locations={[0.1, 0.4, 0.9]}
       >
-        <ActivityIndicator
-          animating={this.state.loading}
-          size="large"
-          color="#ffffff"
-        />
+        <View style={styles.loading}>
+          <ActivityIndicator
+            animating={this.state.loading}
+            size="large"
+            color="#ffffff"
+          />
+        </View>
         <NavigationEvents
           onDidFocus={this.next.bind(this)}
           onDidBlur={this.stop.bind(this)}
         />
-        {this.state.currentTrack &&
-        <View style={styles.icon}>
-          <Text>
-            {this.state.currentTrack.name}
-          </Text>
-        </View>
-        }
-        <View style={styles.buttons}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => this.rate(false)}
-          >
-            {
-              this.state.fontLoaded ? (
-                <Text style={styles.buttonText}>
-                  DISLIKE
-                </Text>
-              ) : null
-            }
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => this.rate(true)}
-          >
-            {
-              this.state.fontLoaded ? (
-                <Text style={styles.buttonText}>
-                  LIKE
-                </Text>
-              ) : null
-            }
-          </TouchableOpacity>
+        <View style={styles.container}>
+          {
+            this.state.currentTrack &&
+            <Swiper
+              cards={[0]}
+              renderCard={() => {
+                return (
+                  <View style={styles.card}>
+
+                  </View>
+                )
+              }}
+              onSwipedLeft={() => this.rate(false)}
+              onSwipedRight={() => this.rate(true)}
+              cardIndex={0}
+              backgroundColor={'transparent'}
+              stackSize={1}>
+            </Swiper>
+          }
         </View>
       </LinearGradient>
     );
@@ -158,11 +153,6 @@ export default class RatingScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-
   },
   buttons: {
     display: 'flex',
@@ -184,5 +174,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'ProximaNova',
     fontSize: 24,
+  },
+  card: {
+    flex: 1,
+    borderRadius: 50,
+    borderWidth: 5,
+    borderColor: 'white',
+    marginBottom: 50,
+  },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
