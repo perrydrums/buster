@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet, Button, Modal} from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet, Button, Modal, ActivityIndicator} from 'react-native';
 import {Font, LinearGradient} from 'expo';
 import * as firebase from 'firebase';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
@@ -8,7 +8,7 @@ import Preview from '../components/Playlist/Preview';
 
 export default class BuildScreen extends React.Component {
   static navigationOptions = {
-    title: 'Build',
+    header: null,
   };
 
   state = {
@@ -18,6 +18,7 @@ export default class BuildScreen extends React.Component {
     recommendations: [],
     tracks: [],
     show_preview: false,
+    loading: false,
   };
 
   async componentDidMount() {
@@ -28,6 +29,8 @@ export default class BuildScreen extends React.Component {
   }
 
   async generate() {
+    this.setState({ loading: true });
+
     const db = firebase.firestore();
     const user = await SpotifyAuth.getCurrentUser();
 
@@ -64,6 +67,7 @@ export default class BuildScreen extends React.Component {
     }
 
     this.setState({ show_preview: true });
+    this.setState({ loading: false });
   }
 
   toggleModal = () => {
@@ -79,6 +83,11 @@ export default class BuildScreen extends React.Component {
         end={{x: 1, y: 1}}
         locations={[0.1, 0.4, 0.9]}
       >
+        <ActivityIndicator
+          animating={this.state.loading}
+          size="large"
+          color="#ffffff"
+        />
         <View style={styles.buttons}>
           <TouchableOpacity
             style={styles.button}
@@ -119,11 +128,11 @@ const styles = StyleSheet.create({
   },
   buttons: {
     display: 'flex',
-    justifyContent: 'space-around',
+    alignItems: 'center',
     width: '100%',
   },
   button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'transparent',
     width: 100,
     borderRadius: 200,
     height: 100,

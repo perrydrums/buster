@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { NavigationEvents } from "react-navigation";
 import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
@@ -15,6 +15,7 @@ export default class RatingScreen extends React.Component {
     currentAudio: null,
     currentTrack: null,
     playingStatus: 'stopped',
+    loading: false,
   };
 
   async componentDidMount() {
@@ -25,6 +26,7 @@ export default class RatingScreen extends React.Component {
   }
 
   async next() {
+    this.setState({ loading: true });
     this.stop();
 
     const sp = await SpotifyAuth.getValidSPObj();
@@ -57,7 +59,9 @@ export default class RatingScreen extends React.Component {
       playingStatus: 'playing'
     });
 
-    this.state.currentAudio.playAsync();
+    this.state.currentAudio.playAsync().then(() => {
+      this.setState({ loading: false });
+    });
   }
 
   async rate(like) {
@@ -104,6 +108,11 @@ export default class RatingScreen extends React.Component {
         end={{ x: 1, y: 1 }}
         locations={[0.1, 0.4, 0.9]}
       >
+        <ActivityIndicator
+          animating={this.state.loading}
+          size="large"
+          color="#ffffff"
+        />
         <NavigationEvents
           onDidFocus={this.next.bind(this)}
           onDidBlur={this.stop.bind(this)}

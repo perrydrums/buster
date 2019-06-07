@@ -1,9 +1,8 @@
 import React from 'react';
-import {View, ScrollView, Text} from 'react-native';
+import {View, ScrollView, Text, ActivityIndicator} from 'react-native';
 import * as firebase from 'firebase';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import {NavigationEvents} from "react-navigation";
-import {LinearGradient} from 'expo';
 
 export default class StatsScreen extends React.Component {
   static navigationOptions = {
@@ -12,10 +11,11 @@ export default class StatsScreen extends React.Component {
 
   state = {
     tracks: [],
+    loading: false,
   };
 
   async getTracks() {
-    this.setState({ tracks: [] });
+    this.setState({ tracks: [], loading: true });
 
     const db = firebase.firestore();
     const sp = await SpotifyAuth.getValidSPObj();
@@ -34,6 +34,8 @@ export default class StatsScreen extends React.Component {
             this.setState({tracks});
           }
         });
+
+        this.setState({ loading: false });
       });
   }
 
@@ -52,6 +54,11 @@ export default class StatsScreen extends React.Component {
       <ScrollView>
         <NavigationEvents
           onDidFocus={this.getTracks.bind(this)}
+        />
+        <ActivityIndicator
+          animating={this.state.loading}
+          size="large"
+          color="#000000"
         />
         <Text>Liked tracks:</Text>
         {this.tracks()}
