@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, ScrollView, Text, ActivityIndicator, StyleSheet, StatusBar} from 'react-native';
+import {View, ScrollView, Text, ActivityIndicator, StyleSheet, StatusBar, Button} from 'react-native';
 import * as firebase from 'firebase';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
 import {NavigationEvents} from "react-navigation";
@@ -58,6 +58,20 @@ export default class StatsScreen extends React.Component {
     });
   }
 
+  async clear() {
+    const { id } = await SpotifyAuth.getCurrentUser();
+    const db = firebase.firestore();
+
+    const query = db.collection('ratings').where('user_id', '==', id);
+    query.get().then(querySnapshot => {
+      querySnapshot.forEach(doc => {
+        doc.ref.delete();
+      });
+    });
+
+    this.getTracks();
+  }
+
   render() {
     return(
       <View style={styles.container}>
@@ -78,6 +92,10 @@ export default class StatsScreen extends React.Component {
           ) : null
         }
         <ScrollView>
+          <Button
+            title="Clear"
+            onPress={this.clear.bind(this)}
+          />
           {this.tracks()}
         </ScrollView>
       </View>
