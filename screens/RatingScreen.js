@@ -27,21 +27,38 @@ export default class RatingScreen extends React.Component {
       'ProximaNova': require('../assets/fonts/ProximaNovaBold.otf'),
     });
     this.setState({ fontLoaded: true });
+
+    setInterval(() => this.getTrack(), 1000);
   }
 
-  async next() {
-    this.setState({ loading: true });
-    this.stop();
+  getRandomSearch() {
+    const characters = 'abcdefghijklmnopqrstuvwxyz';
+    const randomCharacter = characters.charAt(Math.floor(Math.random() * characters.length));
+    let randomSearch = '';
 
-    if (this.state.tracks.length < 2) {
+    switch (Math.round(Math.random())) {
+      case 0:
+        randomSearch = randomCharacter + '%';
+        break;
+      case 1:
+        randomSearch = '%' + randomCharacter + '%';
+        break;
+    }
+
+    return randomSearch;
+  }
+
+  async getTrack() {
+    if (this.state.tracks.length < 5) {
       const sp = await SpotifyAuth.getValidSPObj();
 
-      const getRandomSongsArray = ['%a%', 'a%', '%e%', 'e%', '%i%', 'i%', '%o%', 'o%'];
-      const getRandomSongs = getRandomSongsArray[Math.floor(Math.random() * getRandomSongsArray.length)];
-      const getRandomOffset = Math.floor(Math.random() * 1000);
+      const randomOffset = Math.floor(Math.random() * 1000);
 
-      const response = await sp.search(getRandomSongs, ['track'], {
-        offset: getRandomOffset,
+      console.log('SEARCH', this.getRandomSearch());
+      console.log('OFFSET', randomOffset);
+
+      const response = await sp.search(this.getRandomSearch(), ['track'], {
+        offset: randomOffset,
         limit: 5,
       });
 
@@ -54,12 +71,25 @@ export default class RatingScreen extends React.Component {
             {uri: tracks[i].preview_url},
           );
           this.state.audios.push(sound);
+          break;
         }
       }
+    }
+  }
+
+  async next() {
+    this.setState({ loading: true });
+    this.stop();
+
+    if (this.state.tracks.length === 0) {
+      await this.getTrack();
     }
 
     const sound = this.state.audios.splice(0, 1);
     const track = this.state.tracks.splice(0, 1);
+
+    console.log('TRACKNAME', track[0].name);
+    console.log('ARTISTNAME', track[0].artists[0].name);
 
     this.setState({
       currentAudio: sound[0],
