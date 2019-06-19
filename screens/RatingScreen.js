@@ -54,32 +54,36 @@ export default class RatingScreen extends React.Component {
 
       const randomOffset = Math.floor(Math.random() * 1000);
 
-      console.log('SEARCH', this.getRandomSearch());
-      console.log('OFFSET', randomOffset);
+      try {
+        const response = await sp.search(this.getRandomSearch(), ['track'], {
+          offset: randomOffset,
+          limit: 5,
+        });
 
-      const response = await sp.search(this.getRandomSearch(), ['track'], {
-        offset: randomOffset,
-        limit: 5,
-      });
+        const tracks = response.tracks.items;
+        for (let i = 0; i < tracks.length; i++) {
+          if (tracks[i].preview_url) {
+            this.state.tracks.push(tracks[i]);
 
-      const tracks = response.tracks.items;
-      for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i].preview_url) {
-          this.state.tracks.push(tracks[i]);
-
-          const { sound } = await Audio.Sound.createAsync(
-            {uri: tracks[i].preview_url},
-          );
-          this.state.audios.push(sound);
-          break;
+            const { sound } = await Audio.Sound.createAsync(
+              {uri: tracks[i].preview_url},
+            );
+            this.state.audios.push(sound);
+            break;
+          }
         }
+      }
+      catch (e) {
+        await this.getTrack();
       }
     }
   }
 
-  async next() {
+  async next(stop = true) {
     this.setState({ loading: true });
-    this.stop();
+    if (stop) {
+      this.stop();
+    }
 
     if (this.state.tracks.length === 0) {
       await this.getTrack();
@@ -88,18 +92,20 @@ export default class RatingScreen extends React.Component {
     const sound = this.state.audios.splice(0, 1);
     const track = this.state.tracks.splice(0, 1);
 
-    console.log('TRACKNAME', track[0].name);
-    console.log('ARTISTNAME', track[0].artists[0].name);
-
     this.setState({
       currentAudio: sound[0],
       currentTrack: track[0],
       playingStatus: 'playing'
     });
 
-    this.state.currentAudio.playAsync().then(() => {
-      this.setState({ loading: false });
-    });
+    if (this.state.currentAudio) {
+      this.state.currentAudio.playAsync().then(() => {
+        this.setState({ loading: false });
+      });
+    }
+    else {
+      this.next();
+    }
   }
 
   async rate(like) {
@@ -126,7 +132,7 @@ export default class RatingScreen extends React.Component {
     this.next();
   }
 
-  stop() {
+  stop(remove = false) {
     if (this.state.playingStatus === 'playing') {
       this.state.currentAudio.stopAsync();
       this.setState({
@@ -134,6 +140,12 @@ export default class RatingScreen extends React.Component {
         currentTrack: null,
         playingStatus: 'stopped'
       });
+    }
+    if (remove) {
+      this.setState({
+        tracks: [],
+        audios: [],
+      })
     }
   }
 
@@ -154,8 +166,8 @@ export default class RatingScreen extends React.Component {
           />
         </View>
         <NavigationEvents
-          onDidFocus={this.next.bind(this)}
-          onDidBlur={this.stop.bind(this)}
+          onDidFocus={() => this.next(false)}
+          onDidBlur={() => this.stop(true)}
         />
         <View style={styles.container}>
           {
