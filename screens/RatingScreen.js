@@ -1,5 +1,5 @@
 import React from 'react';
-import {ActivityIndicator, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, View, Text} from 'react-native';
 import { NavigationEvents } from "react-navigation";
 import {Audio, Font, LinearGradient} from 'expo';
 import SpotifyAuth from '../services/Spotify/SpotifyAuth';
@@ -189,6 +189,13 @@ export default class RatingScreen extends React.Component {
             </Swiper>
           }
         </View>
+        <View>
+          {
+            this.state.fontLoaded ? (
+              <Text style={styles.swipeText}>Swipe &lt;&lt; to dislike. Swipe &gt;&gt; to like.</Text>
+            ) : null
+          }
+        </View>
       </LinearGradient>
     );
   }
@@ -224,7 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 5,
     borderColor: 'white',
-    marginBottom: 50,
+    marginBottom: 80,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -236,5 +243,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center'
-  }
+  },
+  swipeText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '700',
+    fontFamily: 'ProximaNova',
+    fontSize: 16,
+    marginBottom: 20,
+  },
 });
